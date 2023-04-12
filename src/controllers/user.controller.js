@@ -3,13 +3,11 @@ const mongoose = require('mongoose');
 
 const create = async (req, res) => {
     const { name, username, email, password, avatar, background } = req.body;
-
     if (!name || !username || !email || !password || !avatar || !background) {
         res.status(400).send({ message: "Submit all fields for registration" });
     }
 
     const user = await userService.createService(req.body);
-
     if (!user) {
         return res.status(400).send({ message: "Error creating User" });
     }
@@ -50,8 +48,38 @@ const findById = async (req, res) => {
     res.send(user);
 };
 
+const update = async (req, res) => {
+    const { name, username, email, password, avatar, background } = req.body;
+    if (!name && !username && !email && !password && !avatar && !background) {
+        res.status(400).send({ message: "Submit at least one field for update" });
+    }
+
+    const id = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).send({ message: "Invalid ID" });
+    }
+
+    const user = await userService.findByIdService(id);
+    if (!user) {
+        return res.status(400).send({ message: "User not Found" });
+    }
+
+    await userService.updateService(
+        id,
+        name,
+        username,
+        email,
+        password,
+        avatar,
+        background
+    );
+
+    res.send({ message: "User successfully updated!" });
+};
+
 module.exports = {
     create,
     findAll,
-    findById
+    findById,
+    update
 };
