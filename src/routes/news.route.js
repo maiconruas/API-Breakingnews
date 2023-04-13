@@ -11,7 +11,7 @@ route.get('/byUser', authMiddleware, newsController.byUser );
 
 route.get('/:id', authMiddleware, newsController.findById);
 route.patch('/:id', authMiddleware, newsController.update);
-
+route.delete("/:id", authMiddleware, newsController.erase);
 
 
 export default route;

@@ -198,12 +198,31 @@ const byUser = async (req, res) => {
   
       await newsService.updateService(id, title, text, banner);
   
-      return res.send({ message: "Post successfully updated!" });
+      return res.send({ message: "News successfully updated!" });
     } catch (err) {
       res.status(500).send({ message: err.message });
     }
   };
 
+  const erase = async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      const news = await newsService.findByIdService(id);
+  
+      if (String(news.user._id) !== req.userId) {
+        return res.status(400).send({
+          message: "You didn't delete this News",
+        });
+      }
+  
+      await newsService.eraseService(id);
+  
+      return res.send({ message: "News deleted successfully" });
+    } catch (err) {
+      res.status(500).send({ message: err.message });
+    }
+  }
 export default { 
     create, 
     findAll, 
@@ -211,5 +230,6 @@ export default {
     findById, 
     searchByTitle, 
     byUser,
-    update
+    update,
+    erase
  };
