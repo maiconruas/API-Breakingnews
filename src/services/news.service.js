@@ -18,7 +18,22 @@ const searchByTitleService = (title) =>
         .populate("user");
 
 
-export const byUserService = (id) =>
+const byUserService = (id) =>
     News.find({ user: id }).sort({ _id: -1 }).populate("user");
 
-export default { createService, findAllService, countNews, topNewsService, findByIdService, searchByTitleService, byUserService };
+const updateService = (id, title, text, banner) =>
+    News.findOneAndUpdate(
+        { _id: id },
+        { title, text, banner },
+    );
+
+export default {
+    createService,
+    findAllService,
+    countNews,
+    topNewsService,
+    findByIdService,
+    searchByTitleService,
+    byUserService,
+    updateService
+};

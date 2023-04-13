@@ -176,4 +176,40 @@ const byUser = async (req, res) => {
       res.status(500).send({ message: err.message });
     }
   };
-export default { create, findAll, topNews, findById, searchByTitle, byUser };
+
+  const update = async (req, res) => {
+    try {
+      const { title, text, banner } = req.body;
+      const { id } = req.params;
+  
+      if (!title && !banner && !text) {
+        res.status(400).send({
+          message: "Submit at least one field to update the post",
+        });
+      }
+      
+      const news = await newsService.findByIdService(id)
+  
+      if (news.user._id != req.userId) {
+        return res.status(400).send({
+          message: "You didn't update this News",
+        });
+      }
+  
+      await newsService.updateService(id, title, text, banner);
+  
+      return res.send({ message: "Post successfully updated!" });
+    } catch (err) {
+      res.status(500).send({ message: err.message });
+    }
+  };
+
+export default { 
+    create, 
+    findAll, 
+    topNews, 
+    findById, 
+    searchByTitle, 
+    byUser,
+    update
+ };
