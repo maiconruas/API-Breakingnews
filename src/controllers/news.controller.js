@@ -156,80 +156,101 @@ const searchByTitle = async (req, res) => {
 
 const byUser = async (req, res) => {
     try {
-      const id = req.userId;
-      const news = await newsService.byUserService(id);
-  
-      return res.send({
-        results: news.map((item) => ({
-          id: item._id,
-          title: item.title,
-          text: item.text,
-          banner: item.banner,
-          likes: item.likes,
-          comments: item.comments,
-          name: item.user.name,
-          username: item.user.username,
-          userAvatar: item.user.avatar,
-        })),
-      });
-    } catch (err) {
-      res.status(500).send({ message: err.message });
-    }
-  };
+        const id = req.userId;
+        const news = await newsService.byUserService(id);
 
-  const update = async (req, res) => {
-    try {
-      const { title, text, banner } = req.body;
-      const { id } = req.params;
-  
-      if (!title && !banner && !text) {
-        res.status(400).send({
-          message: "Submit at least one field to update the post",
+        return res.send({
+            results: news.map((item) => ({
+                id: item._id,
+                title: item.title,
+                text: item.text,
+                banner: item.banner,
+                likes: item.likes,
+                comments: item.comments,
+                name: item.user.name,
+                username: item.user.username,
+                userAvatar: item.user.avatar,
+            })),
         });
-      }
-      
-      const news = await newsService.findByIdService(id)
-  
-      if (news.user._id != req.userId) {
-        return res.status(400).send({
-          message: "You didn't update this News",
-        });
-      }
-  
-      await newsService.updateService(id, title, text, banner);
-  
-      return res.send({ message: "News successfully updated!" });
     } catch (err) {
-      res.status(500).send({ message: err.message });
+        res.status(500).send({ message: err.message });
     }
-  };
+};
 
-  const erase = async (req, res) => {
+const update = async (req, res) => {
     try {
-      const { id } = req.params;
-  
-      const news = await newsService.findByIdService(id);
-  
-      if (String(news.user._id) !== req.userId) {
-        return res.status(400).send({
-          message: "You didn't delete this News",
-        });
-      }
-  
-      await newsService.eraseService(id);
-  
-      return res.send({ message: "News deleted successfully" });
+        const { title, text, banner } = req.body;
+        const { id } = req.params;
+
+        if (!title && !banner && !text) {
+            res.status(400).send({
+                message: "Submit at least one field to update the post",
+            });
+        }
+
+        const news = await newsService.findByIdService(id)
+
+        if (news.user._id != req.userId) {
+            return res.status(400).send({
+                message: "You didn't update this News",
+            });
+        }
+
+        await newsService.updateService(id, title, text, banner);
+
+        return res.send({ message: "News successfully updated!" });
     } catch (err) {
-      res.status(500).send({ message: err.message });
+        res.status(500).send({ message: err.message });
     }
-  }
-export default { 
-    create, 
-    findAll, 
-    topNews, 
-    findById, 
-    searchByTitle, 
+};
+
+const erase = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const news = await newsService.findByIdService(id);
+
+        if (String(news.user._id) !== req.userId) {
+            return res.status(400).send({
+                message: "You didn't delete this News",
+            });
+        }
+
+        await newsService.eraseService(id);
+
+        return res.send({ message: "News deleted successfully" });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+}
+
+const likeNews = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.userId;
+
+        const newsLiked = await newsService.likeNewsService(id, userId);
+
+        if (!newsLiked) {
+            await newsService.deleteLikeNewsService(id, userId);
+            return res.status(200).send({ message: "Like successfully removed" });
+        }
+
+        res.send({ message: "Like done successfully" });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+};
+
+
+export default {
+    create,
+    findAll,
+    topNews,
+    findById,
+    searchByTitle,
     byUser,
     update,
-    erase
- };
+    erase,
+    likeNews
+};
