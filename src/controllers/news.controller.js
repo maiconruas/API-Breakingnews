@@ -243,6 +243,57 @@ const likeNews = async (req, res) => {
 };
 
 
+const addComment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.userId;
+        const { comment } = req.body;
+
+        if (!comment) {
+            return res.status(400).send({ message: "Write a message to comment" });
+        }
+
+        await newsService.addCommentService(id, comment, userId);
+
+        res.send({
+            message: "Comment successfully completed!",
+        });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+};
+
+const deleteComment = async (req, res) => {
+    try {
+        const { idNews, idComment } = req.params;
+        const userId = req.userId;
+
+        const commentDeleted = await newsService.deleteCommentService(
+            idNews,
+            idComment,
+            userId
+        );
+
+        const commentFinder = commentDeleted.comments.find(
+            (comment) => comment.idComment === idComment
+        );
+
+        if (!commentFinder) {
+            return res.status(404).send({ message: "Comment not found" });
+        }
+
+        if (commentFinder.userId !== userId) {
+            return res.status(400).send({ message: "You can't delete this comment" });
+        }
+
+        res.send({
+            message: "Comment successfully removed!",
+        });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+};
+
 export default {
     create,
     findAll,
@@ -252,5 +303,7 @@ export default {
     byUser,
     update,
     erase,
-    likeNews
+    likeNews,
+    addComment,
+    deleteComment
 };
